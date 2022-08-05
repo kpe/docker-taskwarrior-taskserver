@@ -1,0 +1,67 @@
+
+##
+## $PROJECT_ID,$REPO_NAME,$BRANCH_NAME,$TAG_NAME,$COMMIT_SHA,$SHORT_SHA
+##
+## gcr.io/$PROJECT_ID/$REPO_NAME:$TAG_NAME
+##
+
+substitutions:
+  _IM_GCSFUSE:   'gcr.io/$PROJECT_ID/tw_gcsfuse:latest'
+  _IM_BUILDER:   'gcr.io/$PROJECT_ID/tw_builder:latest'
+  _IM_TW:        'gcr.io/$PROJECT_ID/tw_taskwarrior:${TAG_NAME:-${SHORT_SHA}}'
+  _IM_TW_LATEST: 'gcr.io/$PROJECT_ID/tw_taskwarrior:latest'
+
+steps:
+
+  #
+  # pull cached images
+  #
+
+- name: 'gcr.io/cloud-builders/docker'
+  entrypoint: 'bash'
+  args:
+  - '-c'
+  - '(docker pull ${_IM_GCSFUSE} && docker pull ${_IM_BUILDER} && docker pull ${_IM_TW_LATEST}) || exit 0'
+
+
+  #
+  # build the taskserver docker images (multi-staged Dockerfile)
+  #
+
+- name: 'gcr.io/cloud-builders/docker'
+  args: [ 'build', 
+          '--cache-from', '${_IM_GCSFUSE}',
+          '-t',           '${_IM_GCSFUSE}',
+          '--target', 'gcsfuse',
+          '.' ]
+
+- name: 'gcr.io/cloud-builders/docker'
+  args: [ 'build', 
+          '--cache-from', '${_IM_BUILDER}',
+          '-t',           '${_IM_BUILDER}',
+          '--target', 'builder',
+          '.' ]
+
+
+- name: 'gcr.io/cloud-builders/docker'
+  args: [ 'build', 
+          '--cache-from', '${_IM_GCSFUSE}',
+          '--cache-from', '${_IM_BUILDER}',
+          '--cache-from', '${_IM_TW_LATEST}',
+          '-t',           '${_IM_TW_LATEST}',
+          '-t',           '${_IM_TW}',
+          '.' ]
+
+#- name: 'gcr.io/cloud-builders/docker'
+#  args: ['push', '${_IM_TW}']
+#- name: 'gcr.io/cloud-builders/docker'
+#  args: ['push', '${_IM_TW_LATEST}']
+
+
+images:
+  - '${_IM_GCSFUSE}'
+  - '${_IM_BUILDER}'
+  - '${_IM_TW}'
+  - '${_IM_TW_LATEST}'
+
+timeout: 1200s
