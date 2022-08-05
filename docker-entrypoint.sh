@@ -11,38 +11,38 @@ if [ ! -w $TASKDATA ]; then
 fi;
 
 if [ ! -d $TASKDATA/pki/ ]; then
-    execute cp -R /pki $TASKDDATA/pki
+    execute cp -R /pki $TASKDATA/pki
 fi;
 
-if [ ! -f $TASKDDATA/config ]; then
-    echo "===> $TASKDDATA/config not found. Initializing taskd."
+if [ ! -f $TASKDATA/config ]; then
+    echo "===> $TASKDATA/config not found. Initializing taskd."
     execute taskd init
-    execute taskd config --force log $TASKDDATA/taskd.log
+    execute taskd config --force log $TASKDATA/taskd.log
     execute taskd config --force pid.file /taskd.pid
     execute taskd config --force server 0.0.0.0:53589
 fi;
 
 
-if [ ! -f $TASKDDATA/pki/ca.cert.pem ]; then
+if [ ! -f $TASKDATA/pki/ca.cert.pem ]; then
     echo '===> No certificates found. Initializing self-signed ones.'
-    cd $TASKDDATA/pki
+    cd $TASKDATA/pki
     execute ./generate
 
-    execute taskd config --force client.cert $TASKDDATA/pki/client.cert.pem
-    execute taskd config --force client.key  $TASKDDATA/pki/client.key.pem
-    execute taskd config --force server.cert $TASKDDATA/pki/server.cert.pem
-    execute taskd config --force server.key  $TASKDDATA/pki/server.key.pem
-    execute taskd config --force server.crl  $TASKDDATA/pki/server.crl.pem
-    execute taskd config --force ca.cert     $TASKDDATA/pki/ca.cert.pem
+    execute taskd config --force client.cert $TASKDATA/pki/client.cert.pem
+    execute taskd config --force client.key  $TASKDATA/pki/client.key.pem
+    execute taskd config --force server.cert $TASKDATA/pki/server.cert.pem
+    execute taskd config --force server.key  $TASKDATA/pki/server.key.pem
+    execute taskd config --force server.crl  $TASKDATA/pki/server.crl.pem
+    execute taskd config --force ca.cert     $TASKDATA/pki/ca.cert.pem
 else
     echo '===> Certificates already exist'
 fi;
 
-if [ ! -f $TASKDDATA/pki/default-client.key.pem ]; then
+if [ ! -f $TASKDATA/pki/default-client.key.pem ]; then
     echo '===> No users setup yet. Setting up organization Default with user Default'
     execute taskd add org Default
     execute taskd add user Default Default
-    cd $TASKDDATA/pki
+    cd $TASKDATA/pki
     ./generate.client default-client
 fi;
 
@@ -57,9 +57,9 @@ echo "  $ task config taskd.certificate -- ~/.task/default-client.cert.pem"
 echo "  $ task config taskd.key         -- ~/.task/default-client.key.pem"
 echo "  $ task config taskd.cat         -- ~/.task/cat.cert.pem"
 echo "  $ task config taskd.server      -- host.domain:53589"
-echo "  $ task config taskd.credentials -- Default/Default/$(ls $TASKDDATA/orgs/Default/users)"
+echo "  $ task config taskd.credentials -- Default/Default/$(ls $TASKDATA/orgs/Default/users)"
 echo ""
 echo ""
 
 
-execute taskd server --data $TASKDDATA
+execute taskd server --data $TASKDATA
