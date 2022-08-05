@@ -42,19 +42,21 @@ RUN ln -s /usr/sbin/mount.gcsfuse /usr/sbin/mount.fuse.gcsfuse
 RUN adduser -S -u 1000 taskd
 RUN mkdir -p /data /gcs && chown -R taskd /data /pki /gcs
 
-RUN echo -e "\nuser_allow_other\n" > /etc/fuse.conf
-
-USER taskd
-ENV TASKDATA=/data
-ENV GCS_FUSE_OPTS=
-# ENV GCS_FUSE_OPTS=-debug_gcs, --debug_fuse, --debug_http, --debug_fs, --debug_mutex --log-file=
-#                   --key_file=
-# gcsfuse -o allow_other --foreground "${GCS_BUCKET}" "${GCS_MOUNT_DIR}" &
-
-
 #
 # provide GCS_BUCKET name
 #
 ENV GCS_BUCKET=my-taskwarrior-bucket
 ENV GCS_TASKS_DIR=tasks
-ENTRYPOINT bash -c "gcsfuse -o allow_other ${GCS_BUCKET} /gcs && mkdir -p /gcs/${GCS_TASKS_DIR} && mount --bind /gcs/${GCS_TASKS_DIR} ${TASKDATA} && /docker-entrypoint.sh"
+
+ENV GCS_FUSE_OPTS=
+
+RUN echo -e "\nuser_allow_other\n" > /etc/fuse.conf
+RUN echo -e "\n/gcs/${GCS_TASKS_DIR} /data  none  bind,rw,user,noauto  0 0 \n" >> /etc/fstab
+
+USER taskd
+# ENV GCS_FUSE_OPTS=-debug_gcs, --debug_fuse, --debug_http, --debug_fs, --debug_mutex --log-file=
+#                   --key_file=
+
+
+ENV TASKDATA=/data
+ENTRYPOINT bash -c "gcsfuse -o allow_other $GCS_FUSE_OPTS ${GCS_BUCKET} /gcs && mkdir -p /gcs/${GCS_TASKS_DIR} && mount ${TASKDATA} && /docker-entrypoint.sh"
