@@ -57,4 +57,4 @@ ENV GCS_FUSE_OPTS=
 #
 ENV GCS_BUCKET=my-taskwarrior-bucket
 ENV GCS_TASKS_DIR=tasks
-ENTRYPOINT bash -c "gcsfuse -o allow_other ${GCS_BUCKET} /gcs && mount --bind /gcs/${GCS_TASKS_DIR} ${TASK_DIR} && /docker-entrypoint.sh"
+ENTRYPOINT bash -c "gcsfuse -o allow_other ${GCS_BUCKET} /gcs && mkdir -p /gcs/${GCS_TASKS_DIR} && mount --bind /gcs/${GCS_TASKS_DIR} ${TASKDATA} && /docker-entrypoint.sh"
