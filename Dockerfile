@@ -5,10 +5,15 @@ FROM golang:1.18.4-alpine as gcsfuse
 ARG GCSFUSE_VERSION=0.41.4
 ENV GO111MODULE=off
 RUN \
- apk --update --no-cache add git fuse fuse-dev \
+ apk --update --no-cache add git fuse fuse-dev make g++ linux-headers \
  && go get -d github.com/googlecloudplatform/gcsfuse \
  && go install github.com/googlecloudplatform/gcsfuse/tools/build_gcsfuse \
  && build_gcsfuse ${GOPATH}/src/github.com/googlecloudplatform/gcsfuse /tmp ${GCSFUSE_VERSION}
+RUN \
+ mkdir /tmp/work \
+ && wget https://bindfs.org/downloads/bindfs-1.17.0.tar.gz -O- | tar xzv -C /tmp/work \
+ && cd /tmp/work/bindfs-1.17.0 \
+ && ./configure && make install
 
 #
 # taskwarrior's taskserver builder
@@ -32,6 +37,7 @@ FROM alpine
 
 RUN apk add --update --no-cache bash ca-certificates fuse gnutls gnutls-utils libuuid libstdc++
 
+COPY --from=gcsfuse /usr/local/bin/bindfs   /usr/bin/bindfs
 COPY --from=gcsfuse /tmp/bin/gcsfuse        /usr/bin
 COPY --from=gcsfuse /tmp/sbin/mount.gcsfuse /usr/sbin
 COPY --from=builder /dist/usr/local /usr/local
@@ -51,7 +57,6 @@ ENV GCS_TASKS_DIR=tasks
 ENV GCS_FUSE_OPTS=
 
 RUN echo -e "\nuser_allow_other\n" > /etc/fuse.conf
-RUN echo -e "\n/gcs/${GCS_TASKS_DIR} /data  none  bind,rw,user,noauto  0 0 \n" >> /etc/fstab
 
 USER taskd
 # ENV GCS_FUSE_OPTS=-debug_gcs, --debug_fuse, --debug_http, --debug_fs, --debug_mutex --log-file=
@@ -59,4 +64,4 @@ USER taskd
 
 
 ENV TASKDATA=/data
-ENTRYPOINT bash -c "gcsfuse -o allow_other $GCS_FUSE_OPTS ${GCS_BUCKET} /gcs && mkdir -p /gcs/${GCS_TASKS_DIR} && mount ${TASKDATA} && /docker-entrypoint.sh"
+ENTRYPOINT bash -c "gcsfuse -o allow_other $GCS_FUSE_OPTS ${GCS_BUCKET} /gcs && mkdir -p /gcs/${GCS_TASKS_DIR} && bindfs /gcs/${GCS_TASKS_DIR} ${TASKDATA} && /docker-entrypoint.sh"
