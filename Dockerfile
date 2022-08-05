@@ -22,20 +22,20 @@ FROM alpine as builder
 
 ARG VERSION=1.2.0
 RUN apk update \
- && apk add git curl make cmake g++ gnutls-dev util-linux-dev \
- && curl -sL https://github.com/GothenburgBitFactory/taskserver/archive/refs/tags/s${VERSION}.tar.gz | tar xzv -C /tmp \
- && cd /tmp/taskserver-s${VERSION} \
- && echo -e "\n#include<limits.h>\n" >> src/Directory.h \
- && cmake . \
+ && apk add git curl make cmake g++ gnutls-dev util-linux-dev linux-headers  \
+ && cd /tmp/ \
+ && git clone --recursive --depth 1 https://github.com/GothenburgBitFactory/taskserver.git \
+ && cd /tmp/taskserver \
+ && cmake -DCMAKE_BUILD_TYPE=release . \
  && make DESTDIR=/dist install \
- && cp -R pki /dist/pki
+ && cp -R pki /dist/
 
 #
 # taskserver image
 #
 FROM alpine
 
-RUN apk add --update --no-cache bash ca-certificates fuse gnutls gnutls-utils libuuid libstdc++
+RUN apk add --update --no-cache bash ca-certificates fuse gnutls gnutls-utils libuuid libstdc++ strace
 
 COPY --from=gcsfuse /usr/local/bin/bindfs   /usr/bin/bindfs
 COPY --from=gcsfuse /tmp/bin/gcsfuse        /usr/bin
