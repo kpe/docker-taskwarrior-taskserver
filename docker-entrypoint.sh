@@ -45,7 +45,7 @@ if [ ! -f $TASKDATA/pki/default-client.key.pem ]; then
     execute taskd add --data $TASKDATA  org Default
     execute taskd add --data $TASKDATA user Default Default
     cd $TASKDATA/pki
-    execute ./generate.client default-client
+    bash ./generate.client default-client
 fi;
 
 echo ""

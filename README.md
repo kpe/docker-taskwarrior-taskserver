@@ -1,10 +1,10 @@
 
 
 # about
-A GCP docker image for [taskwarrior](https://github.com/GothenburgBitFactory/taskswarrior)'s [taskserver](https://github.com/GothenburgBitFactory/taskserver)
+A GCP docker image for [taskwarrior](https://github.com/GothenburgBitFactory/taskwarrior)'s [taskserver](https://github.com/GothenburgBitFactory/taskserver)
 
 Forked from https://github.com/j6s/docker-taskwarrior-taskserver
-and modified for GCP - build with cloudbuild run in GCE).
+and modified for GCP to build with cloudbuild and run in GCE).
 
 # gcp
 To run in GCP build with cloudbuild, and make sure to run the container as `--priviliged`, mounting `/dev/fuse` read-only.
@@ -17,20 +17,21 @@ Execute the following steps to setup your client:
 1. Get the keys data/pki/default-client.{key,cert}.pem and ca.cert.pem
 
   export DOCKER=docker
-  export CID=68337a9ba2a6
+  export CID=62b7c25b44a1
   mkdir -p ~/.task/pki/
   $DOCKER exec $CID tar cz -C /data/pki/ default-client.{key,cert}.pem ca.cert.pem | tar xzv -C ~/.task/pki/
 
 In GCP you might use:
 
-  export DOCKER='gcloud ssh intance-name'
+  export DOCKER='gcloud compute ssh intance-name -- docker' 
 
 2. Execute on your client:
   task config taskd.certificate -- ~/.task/pki/default-client.cert.pem
   task config taskd.key         -- ~/.task/pki/default-client.key.pem
   task config taskd.ca          -- ~/.task/pki/ca.cert.pem
-  task config taskd.credentials -- Default/Default/c30bc455-25c5-4cc1-b808-c15aa4ed4dfc
+  task config taskd.credentials -- Default/Default/ac69d392-0916-4d57-8b06-fcecd6255ebb
   task config taskd.server      -- host.domain:53589
+
 ```
 
 # devenv
