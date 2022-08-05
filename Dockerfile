@@ -40,7 +40,7 @@ COPY docker-entrypoint.sh /docker-entrypoint.sh
 
 RUN ln -s /usr/sbin/mount.gcsfuse /usr/sbin/mount.fuse.gcsfuse
 RUN adduser -S -u 1000 taskd
-RUN mkdir -p /data && chown -R taskd /data /pki
+RUN mkdir -p /data /gcs && chown -R taskd /data /pki /gcs
 
 USER taskd
 ENV TASKDATA=/data
