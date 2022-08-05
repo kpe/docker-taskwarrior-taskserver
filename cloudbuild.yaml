@@ -29,14 +29,14 @@ steps:
   #
 
 - name: 'gcr.io/cloud-builders/docker'
-  args: [ 'build', 
+  args: [ 'build',
           '--cache-from', '${_IM_GCSFUSE}',
           '-t',           '${_IM_GCSFUSE}',
           '--target', 'gcsfuse',
           '.' ]
 
 - name: 'gcr.io/cloud-builders/docker'
-  args: [ 'build', 
+  args: [ 'build',
           '--cache-from', '${_IM_BUILDER}',
           '-t',           '${_IM_BUILDER}',
           '--target', 'builder',
@@ -44,7 +44,7 @@ steps:
 
 
 - name: 'gcr.io/cloud-builders/docker'
-  args: [ 'build', 
+  args: [ 'build',
           '--cache-from', '${_IM_GCSFUSE}',
           '--cache-from', '${_IM_BUILDER}',
           '--cache-from', '${_IM_TW_LATEST}',

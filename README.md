@@ -11,9 +11,9 @@ and modified for GCP - build with cloudbuild run in GCE).
 To run locally with podman:
 
 ```bash
-podman build -t taskserver . 
+podman build -t taskserver .
 podman run -ti \
  -p 53589:53589 \
- -v $(pwd)/data:/data:Z --userns=keep-id --user=$(id -ur):$(id -gr) \ 
+ -v $(pwd)/data:/data:Z --userns=keep-id --user=$(id -ur):$(id -gr) \
  taskserver
 ```
