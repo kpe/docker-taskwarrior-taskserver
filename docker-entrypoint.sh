@@ -74,3 +74,5 @@ echo ""
 
 
 execute taskd server --data $TASKDATA
+echo "exit: $?"
+execute tail -f /dev/null
