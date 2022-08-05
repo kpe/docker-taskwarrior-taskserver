@@ -42,6 +42,8 @@ RUN ln -s /usr/sbin/mount.gcsfuse /usr/sbin/mount.fuse.gcsfuse
 RUN adduser -S -u 1000 taskd
 RUN mkdir -p /data /gcs && chown -R taskd /data /pki /gcs
 
+RUN echo -e "\nuser_allow_other\n" > /etc/fuse.conf
+
 USER taskd
 ENV TASKDATA=/data
 ENV GCS_FUSE_OPTS=

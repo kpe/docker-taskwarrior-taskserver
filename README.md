@@ -6,6 +6,9 @@ A GCP docker image for [taskwarrior](https://github.com/GothenburgBitFactory/tas
 Forked from https://github.com/j6s/docker-taskwarrior-taskserver
 and modified for GCP - build with cloudbuild run in GCE).
 
+# gcp
+To run in GCP build with cloudbuild, and make sure to run the container as priviliged, mounting /dev/fuse.
+
 # devenv
 
 To run locally with podman:
