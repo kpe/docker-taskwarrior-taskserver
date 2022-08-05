@@ -6,10 +6,10 @@
 ##
 
 substitutions:
-  _IM_GCSFUSE:   'gcr.io/$PROJECT_ID/tw_gcsfuse:latest'
-  _IM_BUILDER:   'gcr.io/$PROJECT_ID/tw_builder:latest'
-  _IM_TW:        'gcr.io/$PROJECT_ID/tw_taskwarrior:${TAG_NAME:-${SHORT_SHA}}'
-  _IM_TW_LATEST: 'gcr.io/$PROJECT_ID/tw_taskwarrior:latest'
+  _IM_GCSFUSE:   'gcr.io/${PROJECT_ID}/tw_gcsfuse:latest'
+  _IM_BUILDER:   'gcr.io/${PROJECT_ID}/tw_builder:latest'
+  _IM_TW:        'gcr.io/${PROJECT_ID}/tw_taskwarrior:${TAG_NAME:-${SHORT_SHA}}'
+  _IM_TW_LATEST: 'gcr.io/${PROJECT_ID}/tw_taskwarrior:latest'
 
 steps:
 
