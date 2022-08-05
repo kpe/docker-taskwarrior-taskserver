@@ -1,13 +1,13 @@
 
 
 # about
-A GCP docker image for [taskwarrior](https://github.com/GothenburgBitFactory/taskserver/releases/tag/s1.2.0)'s [taskserver](https://github.com/GothenburgBitFactory/taskserver)
+A GCP docker image for [taskwarrior](https://github.com/GothenburgBitFactory/taskswarrior)'s [taskserver](https://github.com/GothenburgBitFactory/taskserver)
 
 Forked from https://github.com/j6s/docker-taskwarrior-taskserver
 and modified for GCP - build with cloudbuild run in GCE).
 
 # gcp
-To run in GCP build with cloudbuild, and make sure to run the container as priviliged, mounting /dev/fuse.
+To run in GCP build with cloudbuild, and make sure to run the container as `--priviliged`, mounting `/dev/fuse` read-only.
 
 # client config
 Check the logs in the running container for instructions, i.e.:
@@ -42,5 +42,6 @@ podman build -t taskserver .
 podman run -ti \
  -p 53589:53589 \
  -v $(pwd)/data:/data:Z --userns=keep-id --user=$(id -ur):$(id -gr) \
+ --entrypoint=/bin/bash \
  taskserver
 ```

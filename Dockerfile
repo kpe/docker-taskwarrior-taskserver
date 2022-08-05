@@ -53,7 +53,7 @@ RUN mkdir -p /data /gcs && chown -R taskd /data /pki /gcs
 #
 ENV GCS_BUCKET=my-taskwarrior-bucket
 ENV GCS_TASKS_DIR=tasks
-
+ENV FQDN=localhost
 ENV GCS_FUSE_OPTS=
 
 RUN echo -e "\nuser_allow_other\n" > /etc/fuse.conf

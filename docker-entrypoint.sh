@@ -12,6 +12,8 @@ fi;
 
 if [ ! -d $TASKDATA/pki/ ]; then
     execute cp -R /pki $TASKDATA/pki
+    sed -i "s/^CN=.*/CN=$FQDN/g"                           $TASKDATA/pki/vars
+    sed -i "s/^EXPIRATION_DAYS=.*/EXPIRATION_DAYS=$FQDN/g" $TASKDATA/pki/vars
 fi;
 
 if [ ! -f $TASKDATA/config ]; then
@@ -43,7 +45,7 @@ if [ ! -f $TASKDATA/pki/default-client.key.pem ]; then
     execute taskd add --data $TASKDATA  org Default
     execute taskd add --data $TASKDATA user Default Default
     cd $TASKDATA/pki
-    ./generate.client default-client
+    execute ./generate.client default-client
 fi;
 
 echo ""
@@ -59,7 +61,7 @@ echo "  \$DOCKER exec \$CID tar cz -C /data/pki/ default-client.{key,cert}.pem c
 echo ""
 echo "In GCP you might use:"
 echo ""
-echo "  export DOCKER='gcloud ssh intance-name'"
+echo "  export DOCKER='gcloud compute ssh intance-name -- docker' "
 echo ""
 echo "2. Execute on your client:"
 echo "  task config taskd.certificate -- ~/.task/pki/default-client.cert.pem"
