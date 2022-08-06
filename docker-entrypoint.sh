@@ -12,12 +12,8 @@ fi;
 
 if [ ! -f $TASKDATA/config ]; then
     echo "===> $TASKDATA/config not found. Initializing taskd."
-    execute taskd init   --data $TASKDATA
-    execute taskd config --data $TASKDATA --force log $TASKDATA/taskd.log
-    execute taskd config --data $TASKDATA --force pid.file /taskd.pid
-    execute taskd config --data $TASKDATA --force server 0.0.0.0:53589
 
-fi;
+    execute taskd init   --data $TASKDATA
 
 if [ ! -d $TASKDATA/pki/ ]; then
     execute cp -vr /pki /tmp/
@@ -27,6 +23,7 @@ if [ ! -d $TASKDATA/pki/ ]; then
     cd /tmp/pki
     execute ./generate
     execute ./generate.client default-client
+    cp -rv /tmp/pki/ $TASKDATA/
 
     #execute taskd config --data $TASKDATA --force client.cert $TASKDATA/pki/client.cert.pem
     #execute taskd config --data $TASKDATA --force client.key  $TASKDATA/pki/client.key.pem
@@ -37,11 +34,14 @@ if [ ! -d $TASKDATA/pki/ ]; then
 
     execute taskd add --data $TASKDATA  org Default
     execute taskd add --data $TASKDATA user Default Default
-    cp -rv /tmp/pki/ $TASKDATA/
 
 fi;
 
+    execute taskd config --data $TASKDATA --force log $TASKDATA/taskd.log
+    execute taskd config --data $TASKDATA --force pid.file /taskd.pid
+    execute taskd config --data $TASKDATA --force server 0.0.0.0:53589
 
+fi;
 
 
 
@@ -60,6 +60,7 @@ echo ""
 echo ""
 echo "In GCP you might use:"
 echo "2. Execute on your client:"
+echo ""
 echo "  task config taskd.certificate -- ~/.task/pki/default-client.cert.pem"
 echo "  task config taskd.key         -- ~/.task/pki/default-client.key.pem"
 echo "  task config taskd.ca          -- ~/.task/pki/ca.cert.pem"
