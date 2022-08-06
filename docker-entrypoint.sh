@@ -16,35 +16,28 @@ if [ ! -f $TASKDATA/config ]; then
     execute taskd config --data $TASKDATA --force log $TASKDATA/taskd.log
     execute taskd config --data $TASKDATA --force pid.file /taskd.pid
     execute taskd config --data $TASKDATA --force server 0.0.0.0:53589
+
 fi;
 
 if [ ! -d $TASKDATA/pki/ ]; then
     execute cp -vr /pki /tmp/
     sed -i "s/^CN=.*/CN=$FQDN/g"                           /tmp/pki/vars
-    sed -i "s/^EXPIRATION_DAYS=.*/EXPIRATION_DAYS=$FQDN/g" /tmp/pki/vars
+    sed -i "s/^EXPIRATION_DAYS=.*/EXPIRATION_DAYS=3650/g"  /tmp/pki/vars
 
+    cd /tmp/pki
+    execute ./generate
+    execute ./generate.client default-client
 
-    if [ ! -f $TASKDATA/pki/ca.cert.pem ]; then
-        echo '===> No certificates found. Initializing self-signed ones.'
-        cd /tmp/pki
+    #execute taskd config --data $TASKDATA --force client.cert $TASKDATA/pki/client.cert.pem
+    #execute taskd config --data $TASKDATA --force client.key  $TASKDATA/pki/client.key.pem
+    execute taskd config --data $TASKDATA --force server.cert $TASKDATA/pki/server.cert.pem
+    execute taskd config --data $TASKDATA --force server.key  $TASKDATA/pki/server.key.pem
+    execute taskd config --data $TASKDATA --force server.crl  $TASKDATA/pki/server.crl.pem
+    execute taskd config --data $TASKDATA --force ca.cert     $TASKDATA/pki/ca.cert.pem
 
-        execute ./generate
-        execute ./generate.client default-client
-
-        cp -rv /tmp/pki/ $TASKDATA/
-
-        execute taskd config --data $TASKDATA --force client.cert $TASKDATA/pki/client.cert.pem
-        execute taskd config --data $TASKDATA --force client.key  $TASKDATA/pki/client.key.pem
-        execute taskd config --data $TASKDATA --force server.cert $TASKDATA/pki/server.cert.pem
-        execute taskd config --data $TASKDATA --force server.key  $TASKDATA/pki/server.key.pem
-        execute taskd config --data $TASKDATA --force server.crl  $TASKDATA/pki/server.crl.pem
-        execute taskd config --data $TASKDATA --force ca.cert     $TASKDATA/pki/ca.cert.pem
-
-        execute taskd add --data $TASKDATA  org Default
-        execute taskd add --data $TASKDATA user Default Default
-    else
-        echo '===> Certificates already exist'
-    fi;
+    execute taskd add --data $TASKDATA  org Default
+    execute taskd add --data $TASKDATA user Default Default
+    cp -rv /tmp/pki/ $TASKDATA/
 
 fi;
 
