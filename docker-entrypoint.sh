@@ -10,13 +10,6 @@ if [ ! -w $TASKDATA ]; then
     exit 255;
 fi;
 
-if [ ! -d $TASKDATA/pki/ ]; then
-    execute cp -vr /pki $TASKDATA/
-    chmod +x $TASKDATA/pki/generate* $TASKDATA/pki/check_expire
-    sed -i "s/^CN=.*/CN=$FQDN/g"                           $TASKDATA/pki/vars
-    sed -i "s/^EXPIRATION_DAYS=.*/EXPIRATION_DAYS=$FQDN/g" $TASKDATA/pki/vars
-fi;
-
 if [ ! -f $TASKDATA/config ]; then
     echo "===> $TASKDATA/config not found. Initializing taskd."
     execute taskd init   --data $TASKDATA
@@ -25,29 +18,39 @@ if [ ! -f $TASKDATA/config ]; then
     execute taskd config --data $TASKDATA --force server 0.0.0.0:53589
 fi;
 
+if [ ! -d $TASKDATA/pki/ ]; then
+    execute cp -vr /pki /tmp/
+    sed -i "s/^CN=.*/CN=$FQDN/g"                           /tmp/pki/vars
+    sed -i "s/^EXPIRATION_DAYS=.*/EXPIRATION_DAYS=$FQDN/g" /tmp/pki/vars
 
-if [ ! -f $TASKDATA/pki/ca.cert.pem ]; then
-    echo '===> No certificates found. Initializing self-signed ones.'
-    cd $TASKDATA/pki
-    execute ./generate
 
-    execute taskd config --data $TASKDATA --force client.cert $TASKDATA/pki/client.cert.pem
-    execute taskd config --data $TASKDATA --force client.key  $TASKDATA/pki/client.key.pem
-    execute taskd config --data $TASKDATA --force server.cert $TASKDATA/pki/server.cert.pem
-    execute taskd config --data $TASKDATA --force server.key  $TASKDATA/pki/server.key.pem
-    execute taskd config --data $TASKDATA --force server.crl  $TASKDATA/pki/server.crl.pem
-    execute taskd config --data $TASKDATA --force ca.cert     $TASKDATA/pki/ca.cert.pem
-else
-    echo '===> Certificates already exist'
+    if [ ! -f $TASKDATA/pki/ca.cert.pem ]; then
+        echo '===> No certificates found. Initializing self-signed ones.'
+        cd /tmp/pki
+
+        execute ./generate
+        execute ./generate.client default-client
+
+        cp -rv /tmp/pki/ $TASKDATA/
+
+        execute taskd config --data $TASKDATA --force client.cert $TASKDATA/pki/client.cert.pem
+        execute taskd config --data $TASKDATA --force client.key  $TASKDATA/pki/client.key.pem
+        execute taskd config --data $TASKDATA --force server.cert $TASKDATA/pki/server.cert.pem
+        execute taskd config --data $TASKDATA --force server.key  $TASKDATA/pki/server.key.pem
+        execute taskd config --data $TASKDATA --force server.crl  $TASKDATA/pki/server.crl.pem
+        execute taskd config --data $TASKDATA --force ca.cert     $TASKDATA/pki/ca.cert.pem
+
+        execute taskd add --data $TASKDATA  org Default
+        execute taskd add --data $TASKDATA user Default Default
+    else
+        echo '===> Certificates already exist'
+    fi;
+
 fi;
 
-if [ ! -f $TASKDATA/pki/default-client.key.pem ]; then
-    echo '===> No users setup yet. Setting up organization Default with user Default'
-    execute taskd add --data $TASKDATA  org Default
-    execute taskd add --data $TASKDATA user Default Default
-    cd $TASKDATA/pki
-    execute ./generate.client default-client
-fi;
+
+
+
 
 echo ""
 echo ""
