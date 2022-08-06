@@ -11,7 +11,8 @@ if [ ! -w $TASKDATA ]; then
 fi;
 
 if [ ! -d $TASKDATA/pki/ ]; then
-    execute cp -R /pki $TASKDATA/pki
+    execute cp -vr /pki $TASKDATA/
+    chmod +x $TASKDATA/pki/generate* $TASKDATA/pki/check_expire
     sed -i "s/^CN=.*/CN=$FQDN/g"                           $TASKDATA/pki/vars
     sed -i "s/^EXPIRATION_DAYS=.*/EXPIRATION_DAYS=$FQDN/g" $TASKDATA/pki/vars
 fi;
@@ -45,7 +46,7 @@ if [ ! -f $TASKDATA/pki/default-client.key.pem ]; then
     execute taskd add --data $TASKDATA  org Default
     execute taskd add --data $TASKDATA user Default Default
     cd $TASKDATA/pki
-    bash ./generate.client default-client
+    execute ./generate.client default-client
 fi;
 
 echo ""

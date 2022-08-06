@@ -35,7 +35,7 @@ RUN apk update \
 #
 FROM alpine
 
-RUN apk add --update --no-cache bash ca-certificates fuse gnutls gnutls-utils libuuid libstdc++ strace
+RUN apk add --update --no-cache bash ca-certificates fuse gnutls gnutls-utils libuuid libstdc++
 
 COPY --from=gcsfuse /usr/local/bin/bindfs   /usr/bin/bindfs
 COPY --from=gcsfuse /tmp/bin/gcsfuse        /usr/bin
